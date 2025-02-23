@@ -110,25 +110,25 @@ app.use(express.json());
     res.send(result);
   })
 
-  // Room Review API
-  app.post('/coupons', async(req, res) => {
-    const newReview = req.body;
-    const result = await couponsCollection.insertOne(newReview);
-    res.send(result);
-  })
+    // Coupon Review API
+      app.post('/coupons', async(req, res) => {
+        const newCoupon = req.body;
+        const result = await couponsCollection.insertOne(newCoupon);
+        res.send(result);
+      })
 
-  app.get('/coupons', async(req, res)=> {
-    const cursor = couponsCollection.find();
-    const result = await cursor.toArray();
-    res.send(result);
-});
+      app.get('/coupons', async(req, res)=> {
+        const cursor = couponsCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+    });
 
-app.get('/coupons/:id', async(req, res)=> {
-  const id = req.params.id;
-  const query = {_id: new ObjectId(id)}
-  const result = await couponsCollection.findOne(query);
-  res.send(result);
-})
+    app.get('/coupons/:id', async(req, res)=> {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await couponsCollection.findOne(query);
+      res.send(result);
+    })
 
 
       // await client.db("admin").command({ ping: 1 });
