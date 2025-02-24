@@ -90,6 +90,38 @@ app.use(express.json());
         res.send(result);
     });
 
+    app.patch('/users/:id', async (req, res) => {
+      const { id } = req.params;
+      const { isModerator, isAdmin } = req.body;
+  
+      try {
+          const updateFields = {};
+  
+          if (isModerator) {
+              updateFields.isModerator = true;
+              updateFields.isAdmin = false;
+          } else if (isAdmin) {
+              updateFields.isAdmin = true;
+              updateFields.isModerator = false;
+          }
+  
+          const result = await usersCollection.updateOne(
+              { _id: new ObjectId(id) },
+              { $set: updateFields }
+          );
+  
+          if (result.modifiedCount > 0) {
+              res.send({ success: true, message: 'User role updated successfully' });
+          } else {
+              res.status(404).send({ success: false, message: 'User not found or no changes made' });
+          }
+      } catch (error) {
+          console.error('Failed to update user role:', error);
+          res.status(500).send({ success: false, message: 'Internal server error' });
+      }
+  });
+  
+
 
     // Room Review API
     app.post('/reviews', async(req, res) => {
