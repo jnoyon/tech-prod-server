@@ -31,6 +31,7 @@ app.use(express.json());
       const usersCollection = client.db('TechProd').collection('userCollection');
       const reviewsCollection = client.db('StockRoom').collection('reviewCollection');
       const couponsCollection = client.db('StockRoom').collection('couponCollection');
+      const voteCollection = client.db('StockRoom').collection('voteCollection');
       
       app.post('/products', async (req, res) => {
         const newProduct = req.body;
@@ -110,7 +111,7 @@ app.use(express.json());
     res.send(result);
   })
 
-    // Coupon Review API
+    // Coupon  API
       app.post('/coupons', async(req, res) => {
         const newCoupon = req.body;
         const result = await couponsCollection.insertOne(newCoupon);
@@ -129,6 +130,43 @@ app.use(express.json());
       const result = await couponsCollection.findOne(query);
       res.send(result);
     })
+
+
+    // Post vote
+    app.post('/votes', async (req, res) => {
+        const { productId, userEmail } = req.body;
+    
+        // Check if user already voted
+        const existingVote = await voteCollection.findOne({ productId, userEmail });
+        if (existingVote) {
+            return res.status(400).json({ success: false, message: "You already voted for this product." });
+        }
+    
+        // Insert new vote
+        const result = await voteCollection.insertOne({ productId, userEmail });
+        if (result.insertedId) {
+            res.status(200).json({ success: true, message: "Vote added successfully!" });
+        } else {
+            res.status(500).json({ success: false, message: "Failed to add vote." });
+        }
+    });
+    
+    // Get vote count and user status for a product
+    app.get('/votes/:id', async (req, res) => {
+        const productId = req.params.id;
+    
+        // Count total votes
+        const totalVotes = await voteCollection.countDocuments({ productId });
+    
+        // Check if the logged-in user voted
+        const userEmail = req.query.userEmail;
+        const userVoted = userEmail
+            ? await voteCollection.findOne({ productId, userEmail }) !== null
+            : false;
+    
+        res.send({ totalVotes, userVoted });
+    });
+    
 
 
       // await client.db("admin").command({ ping: 1 });
