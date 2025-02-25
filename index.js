@@ -3,7 +3,7 @@ const app = express();
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
-
+const jwt = require('jsonwebtoken')
 const cors = require('cors');
 app.use(cors()); 
 app.use(express.json()); 
@@ -143,25 +143,44 @@ app.use(express.json());
     res.send(result);
   })
 
-    // Coupon  API
-      app.post('/coupons', async(req, res) => {
-        const newCoupon = req.body;
-        const result = await couponsCollection.insertOne(newCoupon);
-        res.send(result);
-      })
+    // Add Coupon
+app.post('/coupons', async (req, res) => {
+  const newCoupon = req.body;
+  const result = await couponsCollection.insertOne(newCoupon);
+  res.send(result);
+});
 
-      app.get('/coupons', async(req, res)=> {
-        const cursor = couponsCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
-    });
+// Get All Coupons
+app.get('/coupons', async (req, res) => {
+  const coupons = await couponsCollection.find().toArray();
+  res.send(coupons);
+});
 
-    app.get('/coupons/:id', async(req, res)=> {
-      const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
-      const result = await couponsCollection.findOne(query);
-      res.send(result);
-    })
+// Get Single Coupon by ID
+app.get('/coupons/:id', async (req, res) => {
+  const id = req.params.id;
+  const coupon = await couponsCollection.findOne({ _id: new ObjectId(id) });
+  res.send(coupon);
+});
+
+// Update Coupon
+app.put('/coupons/:id', async (req, res) => {
+  const id = req.params.id;
+  const updatedCoupon = req.body;
+  const result = await couponsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updatedCoupon }
+  );
+  res.send(result);
+});
+
+// Delete Coupon
+app.delete('/coupons/:id', async (req, res) => {
+  const id = req.params.id;
+  const result = await couponsCollection.deleteOne({ _id: new ObjectId(id) });
+  res.send(result);
+});
+
 
 
     // Post vote
