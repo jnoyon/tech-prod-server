@@ -77,6 +77,51 @@ app.use(express.json());
           }
       });
 
+      // Add a new route for "Publish"
+app.put('/products/publish/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const update = {
+      $set: { status: true },
+  };
+
+  try {
+      const result = await productsCollection.updateOne(query, update);
+
+      if (result.modifiedCount === 1) {
+          res.status(200).json({ success: true, message: 'Product published successfully.' });
+      } else {
+          res.status(404).json({ success: false, message: 'Product not found or already published.' });
+      }
+  } catch (error) {
+      console.error('Error updating product status:', error);
+      res.status(500).json({ success: false, message: 'Failed to publish product.' });
+  }
+});
+
+// Add a new route for "Make Featured"
+app.put('/products/featured/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const update = {
+      $set: { featured: true },
+  };
+
+  try {
+      const result = await productsCollection.updateOne(query, update);
+
+      if (result.modifiedCount === 1) {
+          res.status(200).json({ success: true, message: 'Product made featured successfully.' });
+      } else {
+          res.status(404).json({ success: false, message: 'Product not found or already featured.' });
+      }
+  } catch (error) {
+      console.error('Error updating product featured status:', error);
+      res.status(500).json({ success: false, message: 'Failed to make product featured.' });
+  }
+});
+
+
 
       // users api
       app.post('/users', async(req, res)=> {
